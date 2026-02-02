@@ -2,9 +2,16 @@
 
 **Endee (nD)** is a specialized, high-performance vector database built for speed and efficiency. This guide covers supported platforms, dependency requirements, and detailed build instructions using both our automated installer and manual CMake configuration.
 
+there are 3 ways to build and run endee:
+1. quick installation and run using install.sh and run.sh scripts
+2. manual build using cmake
+3. using docker
+
+also you can run endee using docker from docker hub without building it locally. refer to section 4 for more details.
+
 ---
 
-## 1. System Requirements
+## System Requirements
 
 Before installing, ensure your system meets the following hardware and operating system requirements.
 
@@ -23,7 +30,7 @@ The following packages are required for compilation.
 
 ---
 
-## 2. Quick Installation (Recommended)
+## 1. Quick Installation (Recommended)
 
 The easiest way to build **ndd** is using the included `install.sh` script. This script handles OS detection, dependency checks, and configuration automatically.
 
@@ -140,7 +147,7 @@ You can override the defaults using arguments:
 ```
 
 
-## 3. Manual Build (Advanced)
+## 2. Manual Build (Advanced)
 
 If you prefer to configure the build manually or integrate it into an existing install pipeline, you can use `cmake` directly.
 
@@ -182,9 +189,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 make -j$(nproc)
 ```
 
----
-
-## 4. Running ndd
+### Running the Built Binary
 
 After a successful build, the binary will be generated in the `build/` directory.
 
@@ -248,7 +253,7 @@ NDD_DATA_DIR=./data ./build/ndd-avx2
 
 
 
-## 5. Docker Deployment
+## 3. Docker Deployment
 
 We provide a Dockerfile for easy containerization. This ensures a consistent runtime environment and simplifies the deployment process across various platforms.
 
@@ -290,7 +295,7 @@ You can also use `docker-compose` to run the service.
 
 ---
 
-## 6. Running Docker container from registry
+## 4. Running Docker container from registry
 
 You can run Endee directly using the pre-built image from Docker Hub without building locally.
 
