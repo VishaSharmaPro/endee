@@ -137,7 +137,7 @@ You can override the defaults using arguments:
 **Run with all options**
 
 ```bash
-./run.sh ndd_data_dir=./my_data binary_file=./build/ndd-avx2 NDD_AUTH_TOKEN=your_token
+./run.sh ndd_data_dir=./my_data binary_file=./build/ndd-avx2 ndd_auth_token=your_token
 ```
 
 **For Help**
