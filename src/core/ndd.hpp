@@ -1,5 +1,7 @@
 #pragma once
 #include <curl/curl.h>
+#include <regex>
+
 #include "hnsw/hnswlib.h"
 #include "settings.hpp"
 #include "id_mapper.hpp"
@@ -563,90 +565,14 @@ public:
                                           + " characters)");
         }
 
-        // Check for reserved names
-        if(backup_name == "." || backup_name == "..") {
-            return std::make_pair(false, "Invalid backup name: cannot be '.' or '..'");
-        }
-
-        // Check for reserved/problematic names (cross-platform)
-        std::string lower_name = backup_name;
-        std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
-
-        // Windows reserved names (case-insensitive)
-        if(lower_name == "con" || lower_name == "prn" || lower_name == "aux" || lower_name == "nul"
-           || lower_name == "com1" || lower_name == "com2" || lower_name == "com3"
-           || lower_name == "com4" || lower_name == "com5" || lower_name == "com6"
-           || lower_name == "com7" || lower_name == "com8" || lower_name == "com9"
-           || lower_name == "lpt1" || lower_name == "lpt2" || lower_name == "lpt3"
-           || lower_name == "lpt4" || lower_name == "lpt5" || lower_name == "lpt6"
-           || lower_name == "lpt7" || lower_name == "lpt8" || lower_name == "lpt9") {
-            return std::make_pair(false, "Invalid backup name: reserved system name (Windows)");
-        }
-
-        // Unix/Linux/macOS device names (could cause confusion)
-        // These aren't technically reserved, but blocking them prevents confusion with /dev/
-        // devices
-        if(lower_name == "null" || lower_name == "zero" || lower_name == "random"
-           || lower_name == "urandom" || lower_name == "stdin" || lower_name == "stdout"
-           || lower_name == "stderr" || lower_name == "tty" || lower_name == "console"
-           || lower_name == "kmem" || lower_name == "mem" || lower_name == "core"
-           || lower_name == "full" || lower_name == "ptmx") {
-            return std::make_pair(false, "Invalid backup name: device/system name (Unix/Linux)");
-        }
-
-        // Prevent hidden files (names starting with dot)
-        if(backup_name[0] == '.') {
-            return std::make_pair(false, "Invalid backup name: cannot start with '.'");
-        }
-
-        // Prevent trailing dots or spaces (Windows issue)
-        char last_char = backup_name[backup_name.length() - 1];
-        if(last_char == '.' || last_char == ' ') {
-            return std::make_pair(false, "Invalid backup name: cannot end with '.' or space");
-        }
-
-        // Prevent leading/trailing whitespace
-        if(std::isspace(backup_name[0]) || std::isspace(last_char)) {
+        // Use regex to check for alphanumeric, underscores, and hyphens
+        static const std::regex backup_name_regex("^[a-zA-Z0-9_-]+$");
+        if(!std::regex_match(backup_name, backup_name_regex)) {
             return std::make_pair(false,
-                                  "Invalid backup name: cannot start or end with whitespace");
+                                  "Invalid backup name: only alphanumeric, underscores, "
+                                  "and hyphens allowed");
         }
 
-        // Check for path traversal attacks
-        if(backup_name.find("..") != std::string::npos || backup_name.find('/') != std::string::npos
-           || backup_name.find('\\') != std::string::npos) {
-            return std::make_pair(false, "Invalid backup name: cannot contain '..', '/', or '\\'");
-        }
-
-        // Check for dangerous characters (null bytes, control chars, colons, etc.)
-        for(size_t i = 0; i < backup_name.length(); ++i) {
-            char c = backup_name[i];
-
-            // Check for null bytes
-            if(c == '\0') {
-                std::cout << "Invalid backup name: cannot contain null bytes at " << i << std::endl;
-                return std::make_pair(false, "Invalid backup name: cannot contain null bytes");
-            }
-
-            // Check for control characters
-            if(std::iscntrl(c)) {
-                return std::make_pair(false,
-                                      "Invalid backup name: cannot contain control characters");
-            }
-
-            // Check for dangerous characters
-            if(c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|'
-               || c == '&' || c == ';' || c == '$' || c == '`' || c == '\'' || c == '('
-               || c == ')') {
-                return std::make_pair(false, "Invalid backup name: contains forbidden characters");
-            }
-
-            // Only allow alphanumeric, hyphens, underscores, dots, and spaces
-            if(!std::isalnum(c) && c != '-' && c != '_' && c != '.' && c != ' ') {
-                return std::make_pair(false,
-                                      "Invalid backup name: only alphanumeric, hyphens, "
-                                      "underscores, dots, and spaces allowed");
-            }
-        }
         return std::make_pair(true, "");
     }
 
