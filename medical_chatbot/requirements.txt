@@ -1,0 +1,14 @@
+endee==0.1.15
+huggingface_hub==0.36.2
+langchain==1.2.10
+langchain-community==0.4.1
+langchain-core==1.2.16
+langchain-huggingface==1.2.0
+langchain-text-splitters==1.1.1
+numpy==2.4.2
+pypdf==6.7.4
+python-dotenv==1.2.1
+sentence-transformers==5.2.3
+torch==2.10.0
+tqdm==4.67.1
+transformers==4.57.6
